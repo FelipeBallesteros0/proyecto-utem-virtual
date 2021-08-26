@@ -1,22 +1,21 @@
 close all, clear all, clc
 
-%L   = Link([Th   d    a   alph])
-%L(1)= Link([pi/2 1    0   pi/2]);
-%L(2)= Link([0    1    0      0],'p');
+% d       kinematic: link offset
+% a       kinematic: link length
+% alpha   kinematic: link twist
+% offset  kinematic: joint variable offset
+
 
 L(1) = Revolute('d', 0, 'a', 0, 'alpha', pi/2, 'offset',     0);
 L(2) = Revolute('d', 0, 'a', 1, 'alpha',    0, 'offset',  pi/2);
 L(3) = Revolute('d', 0, 'a', 1, 'alpha',    0, 'offset', -pi/2);
 
-%L(1) = Link('d', 0.15005, 'a', 0.0203, 'alpha', -pi/2);
-%L(2) = Link('d',    pi/2, 'a', 0.0203, 'alpha', -pi/2);
-%L(3) = Link('d',       1, 'a', 0.0203, 'alpha', -pi/2);
+L(1).qlim=[-pi,pi]; %limite restricciones mecanicas
+L(2).qlim=[-pi/2,pi/2];
+L(3).qlim=[-pi/2,pi];
 
-%L(2).qlim=[0,0.5]; %Es necesario colocar los límites para los robots prismáticos
-%L(3).qlim=[0,0.5];
+rn = SerialLink (L);
 
-R = SerialLink (L);
+rn.name = 'Robot utem virtual';
 
-R.name = 'Robot utem virtual';
-
-R.teach()
+rn.teach()
