@@ -1,0 +1,93 @@
+#include <PID_v1.h>
+
+volatile long count = 0;
+long count2 = 0;
+long dc;
+int IN1 = 12;
+int IN2 = 11;
+int IN3 = 10;
+int IN4 = 9;
+
+long t, t2, tloop;
+float d, tloop2, fdc, dc2;
+int intoutput;
+int intinput;
+int out;
+
+double setpoint, input, output;
+
+double Kp = 2, Ki = 0.24, Kd = 0.026;  //Kp=2, Ki=5, Kd=1;
+PID myPID(&input, &output, &setpoint, Kp, Ki, Kd, DIRECT);
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(2, INPUT_PULLUP);
+  pinMode(3, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), a, FALLING);
+  attachInterrupt(digitalPinToInterrupt(3), b, FALLING);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  input = count2;
+  setpoint = 1000;
+
+  //turn the PID on
+  myPID.SetMode(AUTOMATIC);
+  //analogWrite(IN2,90);
+}
+
+void loop() {
+  /*
+  if(count2 != count) {
+    Serial.print(count2);
+    Serial.print(" ");
+    Serial.println(int(Output));
+  }
+  count2 = count;
+*/
+  t = millis();
+  tloop = t - t2;
+  tloop2 = float(tloop) / 1000;
+  delay(10);
+  dc = count - count2;
+  fdc = float(dc);
+  dc2 = fdc / tloop2;
+  //Serial.println(dc2);
+  count2 = count;
+  t2 = t;
+
+  input = dc2;
+
+  intinput = input;
+  intoutput = output;
+  //out = (intoutput*2)- 255;
+
+
+  myPID.Compute();
+  Serial.print(input);
+  Serial.print(",");
+  Serial.println(output);
+
+  // if(out < 0){
+  // analogWrite(IN1,0);
+  // analogWrite(IN2,abs(out));
+  // }
+  // else {
+  // analogWrite(IN1,abs(out));
+  // analogWrite(IN2,0);
+  // }
+}
+
+void a() {
+  if (digitalRead(2) == digitalRead(3)) {
+    count--;
+  } else {
+    count++;
+  }
+}
+void b() {
+  if (digitalRead(2) == digitalRead(3)) {
+    count++;
+  } else {
+    count--;
+  }
+}
